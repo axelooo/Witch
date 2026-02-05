@@ -1,21 +1,44 @@
 {
-  "name": "The Coven's Grimoire",
+  "name": "The Coven's Grimoire: Eternal Submission",
   "short_name": "CovenRPG",
-  "start_url": "index.html",
+  "description": "Un RPG de survie mentale et tactique face à 10 sorcières légendaires.",
+  "start_url": "/Witch/",
   "display": "fullscreen",
+  "display_override": ["window-controls-overlay", "fullscreen", "standalone"],
   "orientation": "portrait",
   "background_color": "#0a0a0a",
   "theme_color": "#d400ff",
+  "categories": ["games", "roleplaying"],
+  "lang": "fr-FR",
+  "dir": "ltr",
+  "prefer_related_applications": false,
   "icons": [
     {
       "src": "icon-192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-192-maskable.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
     },
     {
       "src": "icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "screenshot-mobile.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "L'Arène des Sorcières"
     }
   ]
 }
