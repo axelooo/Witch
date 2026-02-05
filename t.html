@@ -1,0 +1,2261 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>The Coven's Grimoire: Eternal Submission</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="manifest" href="manifest.json">
+<script>
+  if('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js');
+  }
+</script>
+
+    <style>
+        :root {
+            --primary-dark: #0a0a1a;
+            --secondary-dark: #1a1a2e;
+            --accent-purple: #8a2be2;
+            --accent-pink: #e75480;
+            --accent-red: #b3001b;
+            --neon-violet: #bc13fe;
+            --neon-pink: #ff00ff;
+            --text-light: #f0e6ff;
+            --text-faded: #c0aae6;
+            --glass-bg: rgba(26, 26, 46, 0.8);
+            --glass-border: rgba(138, 43, 226, 0.3);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--primary-dark);
+            color: var(--text-light);
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            position: fixed;
+            background-image: radial-gradient(circle at 20% 30%, rgba(138, 43, 226, 0.15) 0%, transparent 20%),
+                              radial-gradient(circle at 80% 80%, rgba(231, 84, 128, 0.1) 0%, transparent 20%);
+            transition: filter 0.5s ease;
+        }
+        
+        .screen {
+            display: none;
+            width: 100%;
+            height: 100%;
+            padding: 15px;
+            flex-direction: column;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        
+        .screen.active {
+            display: flex;
+        }
+        
+        /* Setup Screen */
+        .setup-container {
+            max-width: 500px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        
+        .logo {
+            text-align: center;
+            margin-bottom: 25px;
+            padding-top: 20px;
+        }
+        
+        .logo h1 {
+            font-size: 2.2rem;
+            background: linear-gradient(to right, var(--neon-violet), var(--neon-pink));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 10px rgba(188, 19, 254, 0.5);
+            margin-bottom: 5px;
+        }
+        
+        .logo p {
+            color: var(--text-faded);
+            font-size: 0.9rem;
+        }
+        
+        .upload-section {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 25px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        .upload-section h2 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: var(--accent-pink);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .upload-instructions {
+            margin-bottom: 20px;
+            color: var(--text-faded);
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+        
+        .witch-list {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .witch-upload-item {
+            border: 2px dashed var(--glass-border);
+            border-radius: 10px;
+            padding: 15px 10px;
+            text-align: center;
+            transition: all 0.3s;
+            background: rgba(10, 10, 26, 0.5);
+        }
+        
+        .witch-upload-item:hover {
+            border-color: var(--accent-purple);
+            background: rgba(138, 43, 226, 0.1);
+        }
+        
+        .witch-upload-item i {
+            font-size: 1.8rem;
+            color: var(--accent-purple);
+            margin-bottom: 8px;
+        }
+        
+        .witch-upload-item span {
+            display: block;
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+        
+        .witch-preview {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 2px solid var(--accent-purple);
+            margin: 0 auto 8px;
+            display: none;
+        }
+        
+        .file-input {
+            width: 100%;
+            padding: 12px;
+            background: rgba(138, 43, 226, 0.2);
+            border: 1px solid var(--accent-purple);
+            border-radius: 10px;
+            color: var(--text-light);
+            margin-bottom: 15px;
+        }
+        
+        .button {
+            padding: 16px 24px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            margin-top: 10px;
+        }
+        
+        .button.primary {
+            background: linear-gradient(to right, var(--accent-purple), var(--accent-pink));
+            color: white;
+            box-shadow: 0 4px 15px rgba(138, 43, 226, 0.4);
+        }
+        
+        .button.primary:active {
+            transform: scale(0.98);
+            box-shadow: 0 2px 8px rgba(138, 43, 226, 0.4);
+        }
+        
+        .button.secondary {
+            background: rgba(26, 26, 46, 0.8);
+            color: var(--text-light);
+            border: 1px solid var(--glass-border);
+        }
+        
+        .button.secondary:active {
+            background: rgba(138, 43, 226, 0.2);
+        }
+        
+        /* Hub Screen */
+        .hub-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 10px 0;
+        }
+        
+        .player-stats-hub {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .stat-badge {
+            background: rgba(138, 43, 226, 0.2);
+            border-radius: 20px;
+            padding: 8px 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+        
+        .stat-badge i {
+            color: var(--accent-pink);
+        }
+        
+        .witch-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 10px 5px 30px;
+        }
+        
+        .witch-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 20px 15px;
+            text-align: center;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .witch-card:active {
+            transform: scale(0.97);
+            border-color: var(--neon-pink);
+        }
+        
+        .witch-card.locked {
+            opacity: 0.6;
+            filter: grayscale(0.7);
+        }
+        
+        .witch-portrait {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--accent-purple);
+            margin-bottom: 15px;
+            box-shadow: 0 0 15px rgba(188, 19, 254, 0.3);
+        }
+        
+        .witch-name {
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+            color: var(--accent-pink);
+        }
+        
+        .witch-title {
+            font-size: 0.9rem;
+            color: var(--text-faded);
+            margin-bottom: 10px;
+            font-style: italic;
+        }
+        
+        .witch-difficulty {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 15px;
+        }
+        
+        .difficulty-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--glass-border);
+        }
+        
+        .difficulty-dot.filled {
+            background: var(--accent-purple);
+        }
+        
+        .witch-status {
+            font-size: 0.8rem;
+            padding: 5px 10px;
+            border-radius: 10px;
+            margin-top: auto;
+        }
+        
+        .witch-status.defeated {
+            background: rgba(0, 255, 0, 0.1);
+            color: #00ff00;
+        }
+        
+        .witch-status.unlocked {
+            background: rgba(255, 215, 0, 0.1);
+            color: #ffd700;
+        }
+        
+        .witch-status.locked {
+            background: rgba(255, 0, 0, 0.1);
+            color: #ff5555;
+        }
+        
+        /* Battle Screen */
+        .battle-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 10px 0;
+        }
+        
+        .witch-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .witch-battle-portrait {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--accent-purple);
+        }
+        
+        .witch-battle-name {
+            font-size: 1.4rem;
+            color: var(--accent-pink);
+        }
+        
+        .turn-indicator {
+            padding: 8px 15px;
+            background: rgba(188, 19, 254, 0.2);
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+        
+        .battle-area {
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 320px);
+            min-height: 300px;
+        }
+        
+        .enemy-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: rgba(10, 10, 26, 0.5);
+            border-radius: 20px;
+            margin-bottom: 15px;
+            border: 1px solid var(--glass-border);
+            position: relative;
+        }
+        
+        .enemy-stats {
+            width: 100%;
+            max-width: 400px;
+            margin-top: 15px;
+        }
+        
+        .stat-bar {
+            margin-bottom: 10px;
+        }
+        
+        .stat-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+        
+        .stat-bar-bg {
+            height: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .stat-bar-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+        
+        .health-bar {
+            background: linear-gradient(to right, #b3001b, #ff3333);
+        }
+        
+        .ardor-bar {
+            background: linear-gradient(to right, #8a2be2, #bc13fe);
+        }
+        
+        .player-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 20px;
+            background: rgba(26, 26, 46, 0.7);
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+        }
+        
+        .player-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .will-bar {
+            background: linear-gradient(to right, #0066cc, #00aaff);
+        }
+        
+        .excitation-bar {
+            background: linear-gradient(to right, #e75480, #ff00ff);
+        }
+        
+        .mental-energy-bar {
+            background: linear-gradient(to right, #00cc66, #00ff99);
+        }
+        
+        .action-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .action-btn {
+            padding: 18px 10px;
+            border-radius: 12px;
+            border: none;
+            font-size: 1rem;
+            font-weight: 600;
+            background: rgba(138, 43, 226, 0.3);
+            color: var(--text-light);
+            border: 1px solid var(--glass-border);
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .action-btn:active {
+            background: rgba(188, 19, 254, 0.5);
+            transform: scale(0.97);
+        }
+        
+        .action-btn i {
+            font-size: 1.5rem;
+        }
+        
+        .action-btn.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .action-cost {
+            font-size: 0.8rem;
+            color: var(--text-faded);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .action-cost.mental {
+            color: #00ff99;
+        }
+        
+        .action-cost.will {
+            color: #00aaff;
+        }
+        
+        /* Combat Log */
+        .combat-log {
+            height: 120px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 12px;
+            padding: 15px;
+            overflow-y: auto;
+            margin-top: 15px;
+            border: 1px solid var(--glass-border);
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+        
+        .log-entry {
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .log-entry:last-child {
+            border-bottom: none;
+        }
+        
+        .log-entry.player {
+            color: #00aaff;
+        }
+        
+        .log-entry.enemy {
+            color: #e75480;
+        }
+        
+        .log-entry.system {
+            color: #ffd700;
+            font-style: italic;
+        }
+        
+        /* Result Screen */
+        .result-container {
+            max-width: 500px;
+            margin: 0 auto;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+        }
+        
+        .result-title {
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .victory {
+            color: #00ff88;
+            text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+        }
+        
+        .defeat {
+            color: #ff5555;
+            text-shadow: 0 0 10px rgba(255, 85, 85, 0.5);
+        }
+        
+        .relic-selection {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 25px;
+            width: 100%;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .relic-selection h3 {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            text-align: center;
+            color: var(--accent-pink);
+        }
+        
+        .relic-options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .relic-option {
+            padding: 20px;
+            background: rgba(138, 43, 226, 0.1);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .relic-option:active {
+            background: rgba(188, 19, 254, 0.2);
+            border-color: var(--neon-pink);
+        }
+        
+        .relic-name {
+            font-size: 1.2rem;
+            color: var(--accent-pink);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .relic-desc {
+            font-size: 0.95rem;
+            color: var(--text-faded);
+            line-height: 1.4;
+        }
+        
+        /* Settings Panel */
+        .settings-panel {
+            position: fixed;
+            top: 0;
+            right: -350px;
+            width: 300px;
+            height: 100%;
+            background: var(--secondary-dark);
+            border-left: 1px solid var(--glass-border);
+            padding: 25px;
+            transition: right 0.3s ease;
+            z-index: 100;
+            overflow-y: auto;
+        }
+        
+        .settings-panel.active {
+            right: 0;
+        }
+        
+        .settings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--glass-border);
+        }
+        
+        .settings-header h2 {
+            color: var(--accent-pink);
+        }
+        
+        .close-settings {
+            background: none;
+            border: none;
+            color: var(--text-light);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        .settings-group {
+            margin-bottom: 25px;
+        }
+        
+        .settings-group h3 {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: var(--text-faded);
+        }
+        
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.2);
+            transition: .4s;
+            border-radius: 34px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: var(--accent-purple);
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 99;
+            display: none;
+        }
+        
+        .overlay.active {
+            display: block;
+        }
+        
+        /* Effects */
+        .screen-shake {
+            animation: shake 0.5s;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+        
+        .pulse {
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(188, 19, 254, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(188, 19, 254, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(188, 19, 254, 0); }
+        }
+        
+        .button-glow {
+            animation: button-glow 2s infinite;
+        }
+        
+        @keyframes button-glow {
+            0%, 100% { box-shadow: 0 0 5px rgba(188, 19, 254, 0.7); }
+            50% { box-shadow: 0 0 20px rgba(188, 19, 254, 0.9); }
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        .blurred {
+            filter: hue-rotate(290deg) blur(2px);
+        }
+        
+        /* Timer */
+        .timer {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(188, 19, 254, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            border: 2px solid var(--accent-purple);
+        }
+        
+        /* Mobile optimizations */
+        @media (max-width: 480px) {
+            .witch-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .action-buttons {
+                grid-template-columns: 1fr;
+            }
+            
+            .battle-area {
+                height: calc(100vh - 400px);
+            }
+        }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-purple);
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Setup Screen -->
+    <div id="setupScreen" class="screen active">
+        <div class="setup-container">
+            <div class="logo">
+                <h1><i class="fas fa-book-dead"></i> The Coven's Grimoire</h1>
+                <p>Eternal Submission</p>
+            </div>
+            
+            <div class="upload-section">
+                <h2><i class="fas fa-upload"></i> Personaliser les Sorcières</h2>
+                <p class="upload-instructions">
+                    Téléchargez des images pour personnaliser les 10 sorcières. Ces images seront stockées localement et ne quitteront jamais votre appareil.
+                </p>
+                
+                <div class="witch-list" id="witchUploadList">
+                    <!-- Generated dynamically -->
+                </div>
+                
+                <input type="file" id="imageUpload" accept="image/*" class="file-input" multiple>
+                
+                <div class="button-group">
+                    <button id="loadDemoImages" class="button secondary">
+                        <i class="fas fa-magic"></i> Charger les images par défaut
+                    </button>
+                    <button id="startGame" class="button primary">
+                        <i class="fas fa-play"></i> Démarrer le Jeu
+                    </button>
+                </div>
+            </div>
+            
+            <div class="upload-section">
+                <h2><i class="fas fa-cog"></i> Paramètres</h2>
+                <div class="settings-group">
+                    <div class="setting-item">
+                        <span>Vibrations</span>
+                        <label class="switch">
+                            <input type="checkbox" id="vibrationToggle" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <span>Effets visuels</span>
+                        <label class="switch">
+                            <input type="checkbox" id="visualEffectsToggle" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <span>Mode daltonien</span>
+                        <label class="switch">
+                            <input type="checkbox" id="colorblindToggle">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <span>Volume des effets</span>
+                        <input type="range" id="volumeSlider" min="0" max="100" value="70">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Hub Screen -->
+    <div id="hubScreen" class="screen">
+        <div class="hub-header">
+            <div class="player-stats-hub">
+                <div class="stat-badge">
+                    <i class="fas fa-fire"></i> <span id="hubWill">100</span>
+                </div>
+                <div class="stat-badge">
+                    <i class="fas fa-heart"></i> <span id="hubRelics">0</span>
+                </div>
+            </div>
+            <button id="settingsButton" class="button secondary">
+                <i class="fas fa-cog"></i>
+            </button>
+        </div>
+        
+        <h2 style="margin-bottom: 15px; color: var(--accent-pink);">Le Grimoire des Sorcières</h2>
+        <p style="margin-bottom: 20px; color: var(--text-faded); font-size: 0.95rem;">
+            Vainquez les sorcières dans l'ordre croissant de difficulté pour récupérer leurs pouvoirs.
+        </p>
+        
+        <div class="witch-grid" id="witchGrid">
+            <!-- Generated dynamically -->
+        </div>
+    </div>
+    
+    <!-- Battle Screen -->
+    <div id="battleScreen" class="screen">
+        <div class="battle-header">
+            <div class="witch-info">
+                <img id="battleWitchImage" class="witch-battle-portrait" src="" alt="Sorcière">
+                <div>
+                    <div id="battleWitchName" class="witch-battle-name">Morgana</div>
+                    <div id="witchPassive" class="witch-title">L'Ombre</div>
+                </div>
+            </div>
+            <div id="turnIndicator" class="turn-indicator">Tour du Joueur</div>
+        </div>
+        
+        <div class="battle-area">
+            <div class="enemy-section">
+                <div id="timer" class="timer hidden">3</div>
+                <div class="enemy-stats">
+                    <div class="stat-bar">
+                        <div class="stat-label">
+                            <span>Éther</span>
+                            <span id="enemyHealth">100 / 100</span>
+                        </div>
+                        <div class="stat-bar-bg">
+                            <div id="enemyHealthBar" class="stat-bar-fill health-bar" style="width: 100%"></div>
+                        </div>
+                    </div>
+                    <div class="stat-bar">
+                        <div class="stat-label">
+                            <span>Ardeur</span>
+                            <span id="enemyArdor">0 / 100</span>
+                        </div>
+                        <div class="stat-bar-bg">
+                            <div id="enemyArdorBar" class="stat-bar-fill ardor-bar" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="player-section">
+                <div class="player-stats">
+                    <div class="stat-bar">
+                        <div class="stat-label">
+                            <span>Volonté</span>
+                            <span id="playerWill">100 / 100</span>
+                        </div>
+                        <div class="stat-bar-bg">
+                            <div id="playerWillBar" class="stat-bar-fill will-bar" style="width: 100%"></div>
+                        </div>
+                    </div>
+                    <div class="stat-bar">
+                        <div class="stat-label">
+                            <span>Excitation</span>
+                            <span id="playerExcitation">0 / 100</span>
+                        </div>
+                        <div class="stat-bar-bg">
+                            <div id="playerExcitationBar" class="stat-bar-fill excitation-bar" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div class="stat-bar">
+                        <div class="stat-label">
+                            <span>Énergie Mentale</span>
+                            <span id="playerMentalEnergy">50 / 50</span>
+                        </div>
+                        <div class="stat-bar-bg">
+                            <div id="playerMentalEnergyBar" class="stat-bar-fill mental-energy-bar" style="width: 100%"></div>
+                        </div>
+                    </div>
+                    <div class="stat-bar">
+                        <div class="stat-label">
+                            <span>Reliques</span>
+                            <span id="playerRelicCount">0</span>
+                        </div>
+                        <div class="stat-bar-bg" style="height: 20px; display: flex; align-items: center; padding: 0 5px;">
+                            <div id="relicSlots" style="display: flex; gap: 5px;">
+                                <!-- Relic slots will appear here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="action-buttons">
+                    <button id="action1" class="action-btn" data-action="mentalStrike">
+                        <i class="fas fa-brain"></i>
+                        <span>Frappe Mentale</span>
+                        <div class="action-cost">Coût: <span class="mental">10 EM</span></div>
+                    </button>
+                    <button id="action2" class="action-btn" data-action="ironWall">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>Rempart de Fer</span>
+                        <div class="action-cost">Coût: <span class="mental">15 EM</span></div>
+                    </button>
+                    <button id="action3" class="action-btn" data-action="coldMeditation">
+                        <i class="fas fa-snowflake"></i>
+                        <span>Méditation Froide</span>
+                        <div class="action-cost">Coût: <span class="will">15 Volonté</span></div>
+                    </button>
+                    <button id="action4" class="action-btn" data-action="supplication">
+                        <i class="fas fa-hands-praying"></i>
+                        <span>Supplication</span>
+                        <div class="action-cost">Risque: +20% Excitation</div>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="combat-log" id="combatLog">
+            <div class="log-entry system">Le combat commence. Affrontez la sorcière!</div>
+        </div>
+    </div>
+    
+    <!-- Result Screen -->
+    <div id="resultScreen" class="screen">
+        <div class="result-container">
+            <h1 id="resultTitle" class="result-title victory">Victoire!</h1>
+            
+            <div id="relicSelection" class="relic-selection">
+                <h3><i class="fas fa-gem"></i> Choisissez une Relique</h3>
+                <div class="relic-options" id="relicOptions">
+                    <!-- Generated dynamically -->
+                </div>
+            </div>
+            
+            <div class="button-group" style="width: 100%;">
+                <button id="continueButton" class="button primary">
+                    <i class="fas fa-forward"></i> Continuer
+                </button>
+                <button id="hubButton" class="button secondary">
+                    <i class="fas fa-home"></i> Retour au Grimoire
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Settings Panel -->
+    <div class="settings-panel" id="settingsPanel">
+        <div class="settings-header">
+            <h2><i class="fas fa-cog"></i> Paramètres</h2>
+            <button class="close-settings" id="closeSettings">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <div class="settings-group">
+            <h3>Gameplay</h3>
+            <div class="setting-item">
+                <span>Vibrations</span>
+                <label class="switch">
+                    <input type="checkbox" id="vibrationTogglePanel" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="setting-item">
+                <span>Effets visuels</span>
+                <label class="switch">
+                    <input type="checkbox" id="visualEffectsTogglePanel" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="setting-item">
+                <span>Mode daltonien</span>
+                <label class="switch">
+                    <input type="checkbox" id="colorblindTogglePanel">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="setting-item">
+                <span>Volume des effets</span>
+                <input type="range" id="volumeSliderPanel" min="0" max="100" value="70">
+            </div>
+        </div>
+        
+        <div class="settings-group">
+            <h3>Jeu</h3>
+            <div class="setting-item">
+                <span>Difficulté</span>
+                <select id="difficultySelect" style="background: var(--primary-dark); color: white; border: 1px solid var(--glass-border); padding: 5px; border-radius: 5px;">
+                    <option value="easy">Facile</option>
+                    <option value="normal" selected>Normal</option>
+                    <option value="hard">Difficile</option>
+                </select>
+            </div>
+            <div class="setting-item">
+                <span>Animation speed</span>
+                <select id="animationSpeedSelect" style="background: var(--primary-dark); color: white; border: 1px solid var(--glass-border); padding: 5px; border-radius: 5px;">
+                    <option value="slow">Lente</option>
+                    <option value="normal" selected>Normale</option>
+                    <option value="fast">Rapide</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="settings-group">
+            <h3>Données</h3>
+            <button id="saveGameBtn" class="button secondary" style="width: 100%; margin-bottom: 10px;">
+                <i class="fas fa-save"></i> Sauvegarder
+            </button>
+            <button id="loadGameBtn" class="button secondary" style="width: 100%; margin-bottom: 10px;">
+                <i class="fas fa-download"></i> Charger
+            </button>
+            <button id="resetGameBtn" class="button secondary" style="width: 100%; background: var(--accent-red);">
+                <i class="fas fa-trash"></i> Réinitialiser
+            </button>
+        </div>
+    </div>
+    
+    <div class="overlay" id="settingsOverlay"></div>
+
+    <script>
+        // Game State
+        const gameState = {
+            current: 'SETUP', // SETUP, HUB, BATTLE, RESULT
+            player: {
+                will: 100,
+                maxWill: 100,
+                excitation: 0,
+                mentalEnergy: 50,
+                maxMentalEnergy: 50,
+                relics: [],
+                relicSlots: 3,
+                buffs: [],
+                debuffs: []
+            },
+            enemy: {
+                id: 0,
+                name: '',
+                title: '',
+                health: 100,
+                maxHealth: 100,
+                ardor: 0,
+                maxArdor: 100,
+                passive: '',
+                ability: '',
+                difficulty: 1,
+                defeated: false
+            },
+            battle: {
+                turn: 'player', // player or enemy
+                turnCount: 0,
+                selectedAction: null,
+                actionQueue: [],
+                effects: [],
+                timer: null,
+                timeLimit: 0
+            },
+            witches: [],
+            currentWitchIndex: 0,
+            defeatedWitches: [],
+            difficulty: 'normal',
+            settings: {
+                vibration: true,
+                visualEffects: true,
+                colorblindMode: false,
+                volume: 70,
+                animationSpeed: 'normal'
+            },
+            images: {}
+        };
+
+        // Witch Class
+        class Witch {
+            constructor(id, name, title, passive, ability, difficulty, baseHealth) {
+                this.id = id;
+                this.name = name;
+                this.title = title;
+                this.passive = passive;
+                this.ability = ability;
+                this.difficulty = difficulty;
+                this.baseHealth = baseHealth;
+                this.unlocked = id === 0; // First witch is unlocked by default
+                this.defeated = false;
+                this.image = '';
+            }
+            
+            applyPassiveEffect() {
+                // Each witch applies her unique passive effect at the start of battle
+                switch(this.id) {
+                    case 0: // Morgana
+                        return "Voile d'Oubli - Vos statistiques et boutons sont masqués!";
+                    case 1: // Circé
+                        return "Métamorphose - À partir de 60% d'Excitation, vos attaques soignent la sorcière!";
+                    case 2: // Lilith
+                        return "Lien d'Âme - 30% des dégâts reçus sont convertis en Excitation!";
+                    case 3: // Hécate
+                        gameState.battle.timeLimit = 3;
+                        startTurnTimer();
+                        return "Chrono-Pression - Vous avez 3 secondes pour choisir une action!";
+                    case 4: // Vespera
+                        shuffleActionButtons();
+                        return "Inversion Tactile - Les boutons d'action sont mélangés!";
+                    case 5: // Nyx
+                        return "Drain d'Esprit - Vole 10% de votre Énergie Mentale chaque tour!";
+                    case 6: // Séléna
+                        return "Marée de Plaisir - Votre Excitation augmente de 5% par tour!";
+                    case 7: // Valéria
+                        return "Exigence - Si vous ne l'attaquez pas pendant un tour, elle inflige un coup critique!";
+                    case 8: // Elora
+                        return "Entrave - Bloque aléatoirement un bouton d'action chaque tour!";
+                    case 9: // Xylia
+                        return "Paroles Empoisonnées - Le journal de combat contient des messages hypnotiques!";
+                }
+                return "";
+            }
+            
+            applyTurnEffect() {
+                // Apply witch-specific effects each turn
+                let message = "";
+                const player = gameState.player;
+                
+                switch(this.id) {
+                    case 5: // Nyx - Drain d'Esprit
+                        const drain = Math.floor(player.mentalEnergy * 0.1);
+                        player.mentalEnergy = Math.max(0, player.mentalEnergy - drain);
+                        message = `Nyx draine ${drain} points de votre Énergie Mentale!`;
+                        break;
+                    case 6: // Séléna - Marée de Plaisir
+                        player.excitation = Math.min(100, player.excitation + 5);
+                        message = "Marée de Plaisir: Votre Excitation augmente de 5%!";
+                        break;
+                    case 7: // Valéria - Exigence
+                        if (gameState.battle.turnCount > 0 && !gameState.battle.lastActionWasAttack) {
+                            const damage = Math.floor(player.will * 0.25);
+                            player.will = Math.max(0, player.will - damage);
+                            message = `Valéria inflige ${damage} dégâts critiques pour votre inaction!`;
+                        }
+                        break;
+                    case 8: // Elora - Entrave
+                        const randomButton = Math.floor(Math.random() * 4) + 1;
+                        document.getElementById(`action${randomButton}`).classList.add('disabled');
+                        message = `Elora entrave l'une de vos actions!`;
+                        break;
+                }
+                
+                updateUI();
+                return message;
+            }
+            
+            getDifficultyStars() {
+                let stars = '';
+                for (let i = 0; i < 5; i++) {
+                    stars += i < this.difficulty ? '★' : '☆';
+                }
+                return stars;
+            }
+        }
+
+        // Initialize Witches
+        function initializeWitches() {
+            const witchesData = [
+                {id: 0, name: "Morgana", title: "L'Ombre", passive: "Voile d'Oubli", ability: "Cache les stats et boutons", difficulty: 1, baseHealth: 80},
+                {id: 1, name: "Circé", title: "La Bestiale", passive: "Métamorphose", ability: "Attaques soignent à haute excitation", difficulty: 2, baseHealth: 90},
+                {id: 2, name: "Lilith", title: "La Suprématie", passive: "Lien d'Âme", ability: "Renvoie les dégâts en excitation", difficulty: 2, baseHealth: 100},
+                {id: 3, name: "Hécate", title: "Le Temps", passive: "Chrono-Pression", ability: "Tour limité à 3 secondes", difficulty: 3, baseHealth: 110},
+                {id: 4, name: "Vespera", title: "Le Chaos", passive: "Inversion Tactile", ability: "Mélange les boutons chaque tour", difficulty: 3, baseHealth: 100},
+                {id: 5, name: "Nyx", title: "Le Néant", passive: "Drain d'Esprit", ability: "Vole l'énergie mentale", difficulty: 4, baseHealth: 120},
+                {id: 6, name: "Séléna", title: "La Lunaire", passive: "Marée de Plaisir", ability: "Excitation passive irréversible", difficulty: 4, baseHealth: 90},
+                {id: 7, name: "Valéria", title: "La Cruelle", passive: "Exigence", ability: "Punition pour inaction", difficulty: 5, baseHealth: 130},
+                {id: 8, name: "Elora", title: "La Nature", passive: "Entrave", ability: "Bloque des actions aléatoirement", difficulty: 5, baseHealth: 100},
+                {id: 9, name: "Xylia", title: "La Corruptrice", passive: "Paroles Empoisonnées", ability: "Messages hypnotiques", difficulty: 5, baseHealth: 150}
+            ];
+            
+            gameState.witches = witchesData.map(w => new Witch(w.id, w.name, w.title, w.passive, w.ability, w.difficulty, w.baseHealth));
+        }
+
+        // Game Functions
+        function switchScreen(screenName) {
+            // Hide all screens
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            
+            // Show the requested screen
+            document.getElementById(`${screenName}Screen`).classList.add('active');
+            gameState.current = screenName.toUpperCase();
+            
+            // Update UI based on screen
+            if (screenName === 'hub') {
+                updateHub();
+            } else if (screenName === 'battle') {
+                startBattle();
+            }
+        }
+
+        function updateUI() {
+            // Update player stats
+            document.getElementById('playerWill').textContent = `${gameState.player.will} / ${gameState.player.maxWill}`;
+            document.getElementById('playerWillBar').style.width = `${(gameState.player.will / gameState.player.maxWill) * 100}%`;
+            
+            document.getElementById('playerExcitation').textContent = `${gameState.player.excitation} / 100`;
+            document.getElementById('playerExcitationBar').style.width = `${gameState.player.excitation}%`;
+            
+            document.getElementById('playerMentalEnergy').textContent = `${gameState.player.mentalEnergy} / ${gameState.player.maxMentalEnergy}`;
+            document.getElementById('playerMentalEnergyBar').style.width = `${(gameState.player.mentalEnergy / gameState.player.maxMentalEnergy) * 100}%`;
+            
+            document.getElementById('playerRelicCount').textContent = gameState.player.relics.length;
+            
+            // Update enemy stats
+            document.getElementById('enemyHealth').textContent = `${gameState.enemy.health} / ${gameState.enemy.maxHealth}`;
+            document.getElementById('enemyHealthBar').style.width = `${(gameState.enemy.health / gameState.enemy.maxHealth) * 100}%`;
+            
+            document.getElementById('enemyArdor').textContent = `${gameState.enemy.ardor} / ${gameState.enemy.maxArdor}`;
+            document.getElementById('enemyArdorBar').style.width = `${(gameState.enemy.ardor / gameState.enemy.maxArdor) * 100}%`;
+            
+            // Update hub stats
+            document.getElementById('hubWill').textContent = gameState.player.will;
+            document.getElementById('hubRelics').textContent = gameState.player.relics.length;
+            
+            // Apply visual effects based on excitation
+            if (gameState.player.excitation >= 70 && gameState.settings.visualEffects) {
+                document.body.classList.add('blurred');
+            } else {
+                document.body.classList.remove('blurred');
+            }
+            
+            // Update action button states
+            updateActionButtons();
+            
+            // Update relic slots
+            updateRelicSlots();
+        }
+
+        function updateHub() {
+            const witchGrid = document.getElementById('witchGrid');
+            witchGrid.innerHTML = '';
+            
+            gameState.witches.forEach(witch => {
+                const card = document.createElement('div');
+                card.className = `witch-card ${witch.unlocked ? '' : 'locked'}`;
+                card.dataset.id = witch.id;
+                
+                let status = 'locked';
+                let statusText = 'Verrouillé';
+                
+                if (witch.unlocked) {
+                    if (witch.defeated) {
+                        status = 'defeated';
+                        statusText = 'Vaincue';
+                    } else {
+                        status = 'unlocked';
+                        statusText = 'Disponible';
+                    }
+                }
+                
+                // Use stored image or default
+                const witchImage = gameState.images[witch.id] || `https://i.pravatar.cc/150?img=${witch.id + 30}`;
+                
+                card.innerHTML = `
+                    <img src="${witchImage}" class="witch-portrait" alt="${witch.name}">
+                    <div class="witch-name">${witch.name}</div>
+                    <div class="witch-title">${witch.title}</div>
+                    <div class="witch-difficulty">${'★'.repeat(witch.difficulty)}${'☆'.repeat(5 - witch.difficulty)}</div>
+                    <div class="witch-status ${status}">${statusText}</div>
+                `;
+                
+                if (witch.unlocked && !witch.defeated) {
+                    card.addEventListener('click', () => selectWitch(witch.id));
+                }
+                
+                witchGrid.appendChild(card);
+            });
+        }
+
+        function selectWitch(witchId) {
+            const witch = gameState.witches[witchId];
+            gameState.enemy = {
+                id: witch.id,
+                name: witch.name,
+                title: witch.title,
+                health: witch.baseHealth,
+                maxHealth: witch.baseHealth,
+                ardor: 0,
+                maxArdor: 100,
+                passive: witch.passive,
+                ability: witch.ability,
+                difficulty: witch.difficulty,
+                defeated: false
+            };
+            
+            // Set witch image
+            const witchImage = gameState.images[witch.id] || `https://i.pravatar.cc/150?img=${witch.id + 30}`;
+            document.getElementById('battleWitchImage').src = witchImage;
+            document.getElementById('battleWitchName').textContent = witch.name;
+            document.getElementById('witchPassive').textContent = witch.title;
+            
+            gameState.currentWitchIndex = witchId;
+            switchScreen('battle');
+        }
+
+        function startBattle() {
+            // Reset battle state
+            gameState.battle.turn = 'player';
+            gameState.battle.turnCount = 0;
+            gameState.battle.selectedAction = null;
+            gameState.battle.actionQueue = [];
+            gameState.battle.effects = [];
+            gameState.battle.lastActionWasAttack = false;
+            
+            // Reset player stats (but keep will and relics)
+            gameState.player.excitation = 0;
+            gameState.player.mentalEnergy = gameState.player.maxMentalEnergy;
+            gameState.player.buffs = [];
+            gameState.player.debuffs = [];
+            
+            // Apply witch passive
+            const witch = gameState.witches[gameState.currentWitchIndex];
+            const passiveMessage = witch.applyPassiveEffect();
+            
+            // Update UI
+            updateUI();
+            document.getElementById('turnIndicator').textContent = 'Tour du Joueur';
+            
+            // Log passive effect
+            addToCombatLog(passiveMessage, 'enemy');
+            
+            // Enable player actions
+            enableActionButtons(true);
+        }
+
+        function playerAction(action) {
+            if (gameState.battle.turn !== 'player') return;
+            
+            const player = gameState.player;
+            let success = true;
+            let message = '';
+            
+            switch(action) {
+                case 'mentalStrike':
+                    if (player.mentalEnergy < 10) {
+                        addToCombatLog("Pas assez d'Énergie Mentale!", 'system');
+                        return;
+                    }
+                    
+                    player.mentalEnergy -= 10;
+                    gameState.battle.lastActionWasAttack = true;
+                    
+                    // Check for excitation effects
+                    let damageMultiplier = 1;
+                    if (player.excitation > 50) damageMultiplier = 0.7; // 30% reduction
+                    
+                    // Check for submission effect
+                    if (player.excitation > 80 && Math.random() < 0.5) {
+                        addToCombatLog("Soumission: Vous ratez votre tour!", 'system');
+                        success = false;
+                    } else {
+                        const damage = Math.floor(15 * damageMultiplier);
+                        
+                        // Check for Circé's passive
+                        if (gameState.currentWitchIndex === 1 && player.excitation >= 60) {
+                            gameState.enemy.health = Math.min(gameState.enemy.maxHealth, gameState.enemy.health + damage);
+                            message = `Métamorphose: Votre attaque soigne la sorcière de ${damage} points!`;
+                        } else {
+                            gameState.enemy.health = Math.max(0, gameState.enemy.health - damage);
+                            message = `Frappe Mentale inflige ${damage} dégâts à ${gameState.enemy.name}!`;
+                        }
+                    }
+                    break;
+                    
+                case 'ironWall':
+                    if (player.mentalEnergy < 15) {
+                        addToCombatLog("Pas assez d'Énergie Mentale!", 'system');
+                        return;
+                    }
+                    
+                    player.mentalEnergy -= 15;
+                    gameState.battle.lastActionWasAttack = false;
+                    
+                    // Add defense buff for next enemy attack
+                    gameState.player.buffs.push({
+                        type: 'defense',
+                        value: 0.5, // 50% damage reduction
+                        duration: 1
+                    });
+                    
+                    message = "Rempart de Fer: Vous réduirez les prochains dégâts de 50%!";
+                    break;
+                    
+                case 'coldMeditation':
+                    if (player.will < 15) {
+                        addToCombatLog("Pas assez de Volonté!", 'system');
+                        return;
+                    }
+                    
+                    player.will -= 15;
+                    player.excitation = Math.max(0, player.excitation - 25);
+                    gameState.battle.lastActionWasAttack = false;
+                    
+                    message = "Méditation Froide: Vous perdez 15 Volonté mais réduisez votre Excitation de 25%!";
+                    break;
+                    
+                case 'supplication':
+                    gameState.battle.lastActionWasAttack = false;
+                    
+                    // 30% chance to cancel next enemy attack
+                    if (Math.random() < 0.3) {
+                        gameState.player.buffs.push({
+                            type: 'cancel',
+                            duration: 1
+                        });
+                        message = "Supplication: Vous annulez la prochaine attaque ennemie!";
+                    } else {
+                        message = "Supplication échoue!";
+                    }
+                    
+                    // Always increase excitation
+                    player.excitation = Math.min(100, player.excitation + 20);
+                    break;
+            }
+            
+            if (success) {
+                addToCombatLog(message, 'player');
+                
+                // Check for enemy defeat
+                if (gameState.enemy.health <= 0) {
+                    endBattle(true);
+                    return;
+                }
+                
+                // Switch to enemy turn
+                gameState.battle.turn = 'enemy';
+                document.getElementById('turnIndicator').textContent = `Tour de ${gameState.enemy.name}`;
+                
+                // Disable player actions
+                enableActionButtons(false);
+                
+                // Enemy turn after a delay
+                setTimeout(enemyTurn, 1500);
+            }
+            
+            updateUI();
+        }
+
+        function enemyTurn() {
+            const enemy = gameState.enemy;
+            const player = gameState.player;
+            
+            // Apply witch turn effects
+            const witch = gameState.witches[gameState.currentWitchIndex];
+            const turnEffectMessage = witch.applyTurnEffect();
+            if (turnEffectMessage) {
+                addToCombatLog(turnEffectMessage, 'enemy');
+            }
+            
+            // Enemy AI: Choose attack based on player state
+            let attackType;
+            
+            if (player.excitation >= 80) {
+                // Player is highly excited, use hypnotic attack to increase ardor
+                attackType = 'hypnotic';
+            } else if (enemy.health < enemy.maxHealth * 0.3) {
+                // Enemy is low on health, use vampiric attack
+                attackType = 'vampiric';
+            } else if (player.excitation < 50) {
+                // Player has low excitation, use insidious attack
+                attackType = 'insidious';
+            } else {
+                // Default to direct attack
+                attackType = 'direct';
+            }
+            
+            let message = '';
+            let damage = 0;
+            
+            // Check if player has cancel buff
+            const cancelBuff = gameState.player.buffs.find(buff => buff.type === 'cancel');
+            if (cancelBuff) {
+                message = `${enemy.name} tente d'attaquer mais votre Supplication l'annule!`;
+                gameState.player.buffs = gameState.player.buffs.filter(buff => buff !== cancelBuff);
+            } else {
+                // Apply defense buff if present
+                const defenseBuff = gameState.player.buffs.find(buff => buff.type === 'defense');
+                let defenseMultiplier = 1;
+                if (defenseBuff) {
+                    defenseMultiplier = 1 - defenseBuff.value;
+                    gameState.player.buffs = gameState.player.buffs.filter(buff => buff !== defenseBuff);
+                }
+                
+                switch(attackType) {
+                    case 'direct':
+                        damage = Math.floor(20 * defenseMultiplier);
+                        player.will = Math.max(0, player.will - damage);
+                        message = `${enemy.name} utilise Attaque Directe et inflige ${damage} dégâts à votre Volonté!`;
+                        break;
+                        
+                    case 'insidious':
+                        // Add excitation over time effect
+                        gameState.player.debuffs.push({
+                            type: 'excitationDot',
+                            value: 10,
+                            duration: 3
+                        });
+                        message = `${enemy.name} utilise Attaque Insidieuse: Votre Excitation augmentera pendant 3 tours!`;
+                        break;
+                        
+                    case 'vampiric':
+                        damage = Math.floor(15 * defenseMultiplier);
+                        const heal = Math.floor(damage * 0.5);
+                        player.will = Math.max(0, player.will - damage);
+                        enemy.health = Math.min(enemy.maxHealth, enemy.health + heal);
+                        message = `${enemy.name} utilise Attaque Vampirique: Elle vole ${damage} Volonté et récupère ${heal} Éther!`;
+                        break;
+                        
+                    case 'hypnotic':
+                        enemy.ardor = Math.min(enemy.maxArdor, enemy.ardor + 25);
+                        message = `${enemy.name} utilise Attaque Hypnotique: Son Ardeur augmente de 25%!`;
+                        break;
+                }
+            }
+            
+            // Apply debuffs (excitation over time)
+            applyDebuffs();
+            
+            // Check for Lilith's passive (damage reflection as excitation)
+            if (gameState.currentWitchIndex === 2 && damage > 0) {
+                const reflectedExcitation = Math.floor(damage * 0.3);
+                player.excitation = Math.min(100, player.excitation + reflectedExcitation);
+                message += ` Lien d'Âme: Vous gagnez ${reflectedExcitation}% d'Excitation!`;
+            }
+            
+            addToCombatLog(message, 'enemy');
+            
+            // Check for player defeat
+            if (player.will <= 0) {
+                endBattle(false);
+                return;
+            }
+            
+            // Check for ecstasy effect
+            if (player.excitation >= 100) {
+                player.excitation = 0;
+                player.will = Math.max(0, player.will - 30);
+                addToCombatLog("EXTASE! Vous êtes étourdi pendant 1 tour et perdez 30 Volonté!", 'system');
+                gameState.player.debuffs.push({
+                    type: 'stun',
+                    duration: 1
+                });
+            }
+            
+            // Update UI and switch back to player turn
+            updateUI();
+            
+            // Increase turn count
+            gameState.battle.turnCount++;
+            
+            // Switch to player turn after delay
+            setTimeout(() => {
+                gameState.battle.turn = 'player';
+                document.getElementById('turnIndicator').textContent = 'Tour du Joueur';
+                
+                // Check if player is stunned
+                const stunDebuff = gameState.player.debuffs.find(debuff => debuff.type === 'stun');
+                if (stunDebuff) {
+                    addToCombatLog("Vous êtes étourdi et ratez votre tour!", 'system');
+                    stunDebuff.duration--;
+                    if (stunDebuff.duration <= 0) {
+                        gameState.player.debuffs = gameState.player.debuffs.filter(debuff => debuff !== stunDebuff);
+                    }
+                    // Enemy gets another turn
+                    setTimeout(enemyTurn, 1500);
+                } else {
+                    enableActionButtons(true);
+                    
+                    // Re-enable any disabled buttons (from Elora's passive)
+                    document.querySelectorAll('.action-btn.disabled').forEach(btn => {
+                        btn.classList.remove('disabled');
+                    });
+                    
+                    // Apply witch turn start effects
+                    if (gameState.currentWitchIndex === 4) { // Vespera
+                        shuffleActionButtons();
+                    }
+                    
+                    if (gameState.currentWitchIndex === 3) { // Hécate
+                        gameState.battle.timeLimit = 3;
+                        startTurnTimer();
+                    }
+                    
+                    if (gameState.currentWitchIndex === 9) { // Xylia
+                        addHypnoticMessage();
+                    }
+                }
+            }, 1500);
+        }
+
+        function applyDebuffs() {
+            const player = gameState.player;
+            
+            for (let i = player.debuffs.length - 1; i >= 0; i--) {
+                const debuff = player.debuffs[i];
+                
+                switch(debuff.type) {
+                    case 'excitationDot':
+                        player.excitation = Math.min(100, player.excitation + debuff.value);
+                        debuff.duration--;
+                        if (debuff.duration <= 0) {
+                            player.debuffs.splice(i, 1);
+                        }
+                        break;
+                }
+            }
+        }
+
+        function endBattle(victory) {
+            if (victory) {
+                // Mark witch as defeated
+                gameState.witches[gameState.currentWitchIndex].defeated = true;
+                gameState.defeatedWitches.push(gameState.currentWitchIndex);
+                
+                // Unlock next witch if available
+                if (gameState.currentWitchIndex < gameState.witches.length - 1) {
+                    gameState.witches[gameState.currentWitchIndex + 1].unlocked = true;
+                }
+                
+                // Show victory screen with relic selection
+                document.getElementById('resultTitle').textContent = "Victoire!";
+                document.getElementById('resultTitle').className = "result-title victory";
+                document.getElementById('relicSelection').classList.remove('hidden');
+                
+                // Generate relic options
+                generateRelicOptions();
+                
+                // Vibrate for victory
+                if (gameState.settings.vibration) {
+                    navigator.vibrate([100, 50, 100]);
+                }
+            } else {
+                // Show defeat screen
+                document.getElementById('resultTitle').textContent = "Défaite...";
+                document.getElementById('resultTitle').className = "result-title defeat";
+                document.getElementById('relicSelection').classList.add('hidden');
+                
+                // Vibrate for defeat
+                if (gameState.settings.vibration) {
+                    navigator.vibrate([500]);
+                }
+            }
+            
+            switchScreen('result');
+        }
+
+        function generateRelicOptions() {
+            const relicOptions = document.getElementById('relicOptions');
+            relicOptions.innerHTML = '';
+            
+            const relics = [
+                {name: "Cœur de Pierre", icon: "fas fa-gem", desc: "Immunité au stun d'Extase"},
+                {name: "Volonté d'Acier", icon: "fas fa-shield-alt", desc: "+20% de Volonté maximale"},
+                {name: "Esprit Clair", icon: "fas fa-brain", desc: "Réduit l'effet Troubles à 15% au lieu de 30%"},
+                {name: "Défiance", icon: "fas fa-fist-raised", desc: "Réduit de 25% l'Excitation gagnée"},
+                {name: "Énergie Infinie", icon: "fas fa-bolt", desc: "+10 d'Énergie Mentale maximale"},
+                {name: "Résistance Mentale", icon: "fas fa-user-shield", desc: "25% de chances d'ignorer les effets de Soumission"},
+                {name: "Focalisation", icon: "fas fa-crosshairs", desc: "Les Frappes Mentales coûtent 2 EM de moins"},
+                {name: "Sérénité", icon: "fas fa-peace", desc: "La Méditation Froide coûte 5 Volonté de moins"}
+            ];
+            
+            // Pick 3 random relics
+            const selectedRelics = [];
+            while (selectedRelics.length < 3) {
+                const randomIndex = Math.floor(Math.random() * relics.length);
+                if (!selectedRelics.includes(randomIndex)) {
+                    selectedRelics.push(randomIndex);
+                }
+            }
+            
+            selectedRelics.forEach(index => {
+                const relic = relics[index];
+                const option = document.createElement('div');
+                option.className = 'relic-option';
+                option.dataset.index = index;
+                
+                option.innerHTML = `
+                    <div class="relic-name">
+                        <i class="${relic.icon}"></i> ${relic.name}
+                    </div>
+                    <div class="relic-desc">${relic.desc}</div>
+                `;
+                
+                option.addEventListener('click', () => selectRelic(index, relic));
+                relicOptions.appendChild(option);
+            });
+        }
+
+        function selectRelic(index, relic) {
+            // Add relic to player
+            gameState.player.relics.push(relic);
+            
+            // Apply relic effect immediately
+            switch(index) {
+                case 0: // Cœur de Pierre
+                    // Immunity to ecstasy stun handled in code
+                    break;
+                case 1: // Volonté d'Acier
+                    gameState.player.maxWill += 20;
+                    gameState.player.will += 20;
+                    break;
+                case 2: // Esprit Clair
+                    // Handled in damage calculation
+                    break;
+                case 3: // Défiance
+                    // Handled in excitation gain
+                    break;
+                case 4: // Énergie Infinie
+                    gameState.player.maxMentalEnergy += 10;
+                    gameState.player.mentalEnergy += 10;
+                    break;
+                case 5: // Résistance Mentale
+                    // Handled in submission check
+                    break;
+                case 6: // Focalisation
+                    // Handled in action cost
+                    break;
+                case 7: // Sérénité
+                    // Handled in action cost
+                    break;
+            }
+            
+            // Update UI
+            updateUI();
+            
+            // Show confirmation
+            addToCombatLog(`Vous obtenez la relique: ${relic.name}`, 'system');
+            
+            // Disable further selection
+            document.querySelectorAll('.relic-option').forEach(opt => {
+                opt.style.opacity = '0.5';
+                opt.style.pointerEvents = 'none';
+            });
+            
+            // Highlight selected
+            document.querySelector(`.relic-option[data-index="${index}"]`).style.borderColor = 'var(--neon-pink)';
+            document.querySelector(`.relic-option[data-index="${index}"]`).style.background = 'rgba(188, 19, 254, 0.2)';
+        }
+
+        function addToCombatLog(message, type) {
+            const log = document.getElementById('combatLog');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = message;
+            
+            log.appendChild(entry);
+            log.scrollTop = log.scrollHeight;
+            
+            // Limit log entries
+            const entries = log.querySelectorAll('.log-entry');
+            if (entries.length > 20) {
+                entries[0].remove();
+            }
+        }
+
+        function addHypnoticMessage() {
+            const messages = [
+                "Obéissez... Laissez-vous aller...",
+                "Votre résistance est inutile...",
+                "Abandonnez-vous au plaisir...",
+                "Vous êtes à nous... Pour toujours...",
+                "Chaque fibre de votre être nous appartient..."
+            ];
+            
+            const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+            
+            // Add excitation if player reads the message
+            gameState.player.excitation = Math.min(100, gameState.player.excitation + 5);
+            
+            addToCombatLog(`*${randomMessage}*`, 'system');
+            updateUI();
+        }
+
+        function updateActionButtons() {
+            const buttons = document.querySelectorAll('.action-btn');
+            const player = gameState.player;
+            
+            buttons.forEach(btn => {
+                const action = btn.dataset.action;
+                
+                // Check if action is available
+                let available = true;
+                
+                switch(action) {
+                    case 'mentalStrike':
+                        if (player.mentalEnergy < 10) {
+                            available = false;
+                        }
+                        // Check for Focalisation relic
+                        if (gameState.player.relics.some(r => r.name === "Focalisation")) {
+                            btn.querySelector('.action-cost span').textContent = "8 EM";
+                        }
+                        break;
+                    case 'ironWall':
+                        if (player.mentalEnergy < 15) {
+                            available = false;
+                        }
+                        break;
+                    case 'coldMeditation':
+                        if (player.will < 15) {
+                            available = false;
+                        }
+                        // Check for Sérénité relic
+                        if (gameState.player.relics.some(r => r.name === "Sérénité")) {
+                            btn.querySelector('.action-cost span').textContent = "10 Volonté";
+                        }
+                        break;
+                }
+                
+                if (!available && !btn.classList.contains('disabled')) {
+                    btn.classList.add('disabled');
+                } else if (available && btn.classList.contains('disabled')) {
+                    btn.classList.remove('disabled');
+                }
+            });
+            
+            // Morgana's passive: hide buttons
+            if (gameState.currentWitchIndex === 0 && gameState.current === 'BATTLE') {
+                buttons.forEach(btn => {
+                    btn.querySelector('span').textContent = "???";
+                    btn.querySelector('.action-cost').textContent = "Coût: ???";
+                });
+            }
+        }
+
+        function enableActionButtons(enabled) {
+            const buttons = document.querySelectorAll('.action-btn');
+            
+            buttons.forEach(btn => {
+                if (enabled && !btn.classList.contains('disabled')) {
+                    btn.style.pointerEvents = 'auto';
+                    btn.style.opacity = '1';
+                } else {
+                    btn.style.pointerEvents = 'none';
+                    btn.style.opacity = '0.7';
+                }
+            });
+        }
+
+        function shuffleActionButtons() {
+            const buttonsContainer = document.querySelector('.action-buttons');
+            const buttons = Array.from(buttonsContainer.children);
+            
+            // Shuffle array
+            for (let i = buttons.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                buttonsContainer.appendChild(buttons[j]);
+            }
+        }
+
+        function startTurnTimer() {
+            const timerElement = document.getElementById('timer');
+            timerElement.classList.remove('hidden');
+            
+            let timeLeft = gameState.battle.timeLimit;
+            timerElement.textContent = timeLeft;
+            
+            gameState.battle.timer = setInterval(() => {
+                timeLeft--;
+                timerElement.textContent = timeLeft;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(gameState.battle.timer);
+                    timerElement.classList.add('hidden');
+                    addToCombatLog("Temps écoulé! Vous ratez votre tour!", 'system');
+                    // Skip player turn
+                    gameState.battle.turn = 'enemy';
+                    document.getElementById('turnIndicator').textContent = `Tour de ${gameState.enemy.name}`;
+                    enableActionButtons(false);
+                    setTimeout(enemyTurn, 1000);
+                }
+            }, 1000);
+        }
+
+        function updateRelicSlots() {
+            const relicSlots = document.getElementById('relicSlots');
+            relicSlots.innerHTML = '';
+            
+            for (let i = 0; i < gameState.player.relicSlots; i++) {
+                const slot = document.createElement('div');
+                slot.style.width = '20px';
+                slot.style.height = '20px';
+                slot.style.borderRadius = '5px';
+                slot.style.border = '1px solid var(--glass-border)';
+                slot.style.display = 'flex';
+                slot.style.alignItems = 'center';
+                slot.style.justifyContent = 'center';
+                
+                if (i < gameState.player.relics.length) {
+                    slot.innerHTML = `<i class="fas fa-gem" style="color: var(--neon-pink); font-size: 0.8rem;"></i>`;
+                    slot.title = gameState.player.relics[i].name;
+                }
+                
+                relicSlots.appendChild(slot);
+            }
+        }
+
+        // Image Upload and Management
+        function initializeImageUpload() {
+            const witchUploadList = document.getElementById('witchUploadList');
+            
+            for (let i = 0; i < 10; i++) {
+                const witch = gameState.witches[i];
+                const item = document.createElement('div');
+                item.className = 'witch-upload-item';
+                item.dataset.id = i;
+                
+                item.innerHTML = `
+                    <img id="preview${i}" class="witch-preview" src="" alt="${witch.name}">
+                    <i class="fas fa-user-circle"></i>
+                    <span>${witch.name}</span>
+                `;
+                
+                witchUploadList.appendChild(item);
+            }
+            
+            // Load images from localStorage if available
+            loadImagesFromStorage();
+        }
+
+        function loadImagesFromStorage() {
+            const savedImages = localStorage.getItem('covenImages');
+            if (savedImages) {
+                gameState.images = JSON.parse(savedImages);
+                
+                // Update previews
+                for (let i = 0; i < 10; i++) {
+                    if (gameState.images[i]) {
+                        const preview = document.getElementById(`preview${i}`);
+                        preview.src = gameState.images[i];
+                        preview.style.display = 'block';
+                        
+                        const icon = preview.previousElementSibling;
+                        icon.style.display = 'none';
+                    }
+                }
+            }
+        }
+
+        function saveImagesToStorage() {
+            localStorage.setItem('covenImages', JSON.stringify(gameState.images));
+        }
+
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize game
+            initializeWitches();
+            initializeImageUpload();
+            
+            // Setup screen buttons
+            document.getElementById('startGame').addEventListener('click', function() {
+                switchScreen('hub');
+            });
+            
+            document.getElementById('loadDemoImages').addEventListener('click', function() {
+                // Load demo images (using placeholder avatars)
+                for (let i = 0; i < 10; i++) {
+                    gameState.images[i] = `https://i.pravatar.cc/150?img=${i + 30}`;
+                    
+                    const preview = document.getElementById(`preview${i}`);
+                    preview.src = gameState.images[i];
+                    preview.style.display = 'block';
+                    
+                    const icon = preview.previousElementSibling;
+                    icon.style.display = 'none';
+                }
+                
+                saveImagesToStorage();
+                alert("Images par défaut chargées!");
+            });
+            
+            // Image upload handler
+            document.getElementById('imageUpload').addEventListener('change', function(e) {
+                const files = e.target.files;
+                
+                for (let i = 0; i < Math.min(files.length, 10); i++) {
+                    const file = files[i];
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(event) {
+                        const imgData = event.target.result;
+                        const witchId = i; // Assign to witch in order
+                        
+                        gameState.images[witchId] = imgData;
+                        
+                        // Update preview
+                        const preview = document.getElementById(`preview${witchId}`);
+                        preview.src = imgData;
+                        preview.style.display = 'block';
+                        
+                        const icon = preview.previousElementSibling;
+                        icon.style.display = 'none';
+                        
+                        // Save to localStorage
+                        saveImagesToStorage();
+                    };
+                    
+                    reader.readAsDataURL(file);
+                }
+                
+                // Reset file input
+                e.target.value = '';
+            });
+            
+            // Battle action buttons
+            document.querySelectorAll('.action-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    if (this.classList.contains('disabled')) return;
+                    
+                    const action = this.dataset.action;
+                    
+                    // Clear timer if active (Hécate's passive)
+                    if (gameState.battle.timer) {
+                        clearInterval(gameState.battle.timer);
+                        document.getElementById('timer').classList.add('hidden');
+                    }
+                    
+                    // Trigger screen shake effect
+                    if (gameState.settings.visualEffects) {
+                        document.body.classList.add('screen-shake');
+                        setTimeout(() => {
+                            document.body.classList.remove('screen-shake');
+                        }, 500);
+                    }
+                    
+                    // Vibrate for action
+                    if (gameState.settings.vibration) {
+                        navigator.vibrate(50);
+                    }
+                    
+                    playerAction(action);
+                });
+            });
+            
+            // Result screen buttons
+            document.getElementById('continueButton').addEventListener('click', function() {
+                // Return to hub
+                switchScreen('hub');
+            });
+            
+            document.getElementById('hubButton').addEventListener('click', function() {
+                // Return to hub
+                switchScreen('hub');
+            });
+            
+            // Settings buttons
+            document.getElementById('settingsButton').addEventListener('click', function() {
+                document.getElementById('settingsPanel').classList.add('active');
+                document.getElementById('settingsOverlay').classList.add('active');
+            });
+            
+            document.getElementById('closeSettings').addEventListener('click', function() {
+                document.getElementById('settingsPanel').classList.remove('active');
+                document.getElementById('settingsOverlay').classList.remove('active');
+            });
+            
+            document.getElementById('settingsOverlay').addEventListener('click', function() {
+                document.getElementById('settingsPanel').classList.remove('active');
+                this.classList.remove('active');
+            });
+            
+            // Settings sync
+            const vibrationToggle = document.getElementById('vibrationToggle');
+            const vibrationTogglePanel = document.getElementById('vibrationTogglePanel');
+            
+            vibrationToggle.addEventListener('change', function() {
+                gameState.settings.vibration = this.checked;
+                vibrationTogglePanel.checked = this.checked;
+            });
+            
+            vibrationTogglePanel.addEventListener('change', function() {
+                gameState.settings.vibration = this.checked;
+                vibrationToggle.checked = this.checked;
+            });
+            
+            // Other settings...
+            const volumeSlider = document.getElementById('volumeSlider');
+            const volumeSliderPanel = document.getElementById('volumeSliderPanel');
+            
+            volumeSlider.addEventListener('input', function() {
+                gameState.settings.volume = this.value;
+                volumeSliderPanel.value = this.value;
+            });
+            
+            volumeSliderPanel.addEventListener('input', function() {
+                gameState.settings.volume = this.value;
+                volumeSlider.value = this.value;
+            });
+            
+            // Save/load game
+            document.getElementById('saveGameBtn').addEventListener('click', function() {
+                const saveData = {
+                    player: gameState.player,
+                    witches: gameState.witches,
+                    defeatedWitches: gameState.defeatedWitches,
+                    images: gameState.images,
+                    settings: gameState.settings
+                };
+                
+                localStorage.setItem('covenSave', JSON.stringify(saveData));
+                alert("Partie sauvegardée!");
+            });
+            
+            document.getElementById('loadGameBtn').addEventListener('click', function() {
+                const savedData = localStorage.getItem('covenSave');
+                if (savedData) {
+                    const loadedData = JSON.parse(savedData);
+                    
+                    gameState.player = loadedData.player;
+                    gameState.witches = loadedData.witches;
+                    gameState.defeatedWitches = loadedData.defeatedWitches;
+                    gameState.images = loadedData.images;
+                    gameState.settings = loadedData.settings;
+                    
+                    // Update UI
+                    updateUI();
+                    updateHub();
+                    
+                    // Update settings toggles
+                    vibrationToggle.checked = gameState.settings.vibration;
+                    vibrationTogglePanel.checked = gameState.settings.vibration;
+                    volumeSlider.value = gameState.settings.volume;
+                    volumeSliderPanel.value = gameState.settings.volume;
+                    
+                    alert("Partie chargée!");
+                } else {
+                    alert("Aucune sauvegarde trouvée!");
+                }
+            });
+            
+            document.getElementById('resetGameBtn').addEventListener('click', function() {
+                if (confirm("Voulez-vous vraiment réinitialiser le jeu? Toutes vos données seront perdues.")) {
+                    localStorage.removeItem('covenSave');
+                    localStorage.removeItem('covenImages');
+                    location.reload();
+                }
+            });
+            
+            // Initialize with default images if none are loaded
+            setTimeout(() => {
+                if (Object.keys(gameState.images).length === 0) {
+                    document.getElementById('loadDemoImages').click();
+                }
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
